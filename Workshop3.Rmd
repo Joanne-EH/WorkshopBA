@@ -9,27 +9,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-
-
 ```{r}
 # control option I is f=shortcut for R chunk
 library(tidyverse)
@@ -63,17 +42,103 @@ survey_IT_au<-survey%>%
   filter(country=="Australia" | country=="australia"|country=="Australi")%>%
   filter(industry=="Computing or Tech" & annual_salary>80000)
 
+survey%>%
+  filter(gender!="Men")
+
 ```
 
 #### Select
 
 ```{r}
 survey_IT_au %>%
-  select(how_old_are_you, annual_salary)%>%
-  arrange(annual_salary,)
+  select (how_old_are_you,job_title, annual_salary)%>%
+  arrange(desc(annual_salary))
+
+
+survey%>%
+  distinct(industry)
+
+
+survey%>%
+  count(gender, industry, sort= TRUE)
 
 
 survey_IT_au%>%
   select(-industry)
+
+survey_IT_au%>%
+  count(highest_level_of_education_completed, sort = TRUE)
+
+survey_IT_au%>%
+  count(gender, city, sort=TRUE)
+
+survey_IT_au%>%
+  count(overall_years_of_professional_experience, country, sort=TRUE)
+
+
+survey%>%count(state)
+```
+
+
+#### `mutate` vs `transmute`
+
+
+```{r}
+
+class(survey_IT_au$annual_salary)
+
+survey_IT_au<- survey_IT_au%>%
+  mutate(avr_salary=mean(annual_salary))
+
+
+survey_IT_au%>%  count(city)
+
+
+survey_IT_au_grouped<-survey_IT_au%>%
+  group_by(city)%>%
+  mutate(max_salary=max(annual_salary))%>%
+  ungroup()
+  
+
+survey_IT_au_grouped<-survey_IT_au%>%
+  group_by(city)%>%
+  mutate(max_salary=max(annual_salary))%>%
+  select(how_old_are_you, job_title , city, annual_salary, avr_salary, max_salary)
+
+
+survey_IT_au%>%
+  summarise(min_salary=min(annual_salary))
+
+survey_IT_au%>%
+  group_by(gender)%>%
+  summarise(min_salary=min(annual_salary))
+
+
+survey_IT_au%>%
+  group_by(gender)%>%
+  summarise(min_salary=min(annual_salary),
+            max_salary=max(annual_salary),
+            avr_salary=mean(annual_salary))%>%
+  arrange(desc(avr_salary))%>%
+  ungroup()
+
+survey_IT_au%>%
+  group_by(gender)%>%
+  summarise(min_salary=min(annual_salary))
+
+
+survey_IT_au<-survey_IT_au%>%
+  mutate(age=parse_number(overall_years_of_professional_experience))
+
+
+survey_IT_au<-survey_IT_au%>%
+  mutate(age=parse_number(how_old_are_you))
+
+
+survey_IT_au%>%
+  mutate(su_analyst = case_when(job_title == "Business Analyst" ~ "Yes", T ~ "no"))
+
+
+
 ```
 
